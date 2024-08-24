@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>📚Book counter</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 text-gray-800 font-sans">
+    <div class="container mx-auto px-4 py-8 max-w-3xl">
+        <h1 class="text-3xl font-bold text-blue-600 mb-6">📚Book counter</h1>
+    
+        <div class="mb-6">
+            <label for="pdfFile" class="block mb-2 text-sm font-medium text-gray-700">选择PDF文件</label>
+            <div class="flex items-center">
+                <label for="pdfFile" class="cursor-pointer bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-lg transition duration-300">
+                    <span id="fileLabel">选择文件</span>
+                    <input type="file" id="pdfFile" accept=".pdf" class="hidden" onchange="updateFileName()">
+                </label>
+                <span id="fileName" class="ml-3 text-sm text-gray-600"></span>
+            </div>
+        </div>
+
+        <button onclick="processPDF()" class="w-full bg-blue-500 hover:bg-blue-600 text-white  py-2 px-4 rounded-lg transition duration-300">
+            上传并查看PDF中提及的书籍
+        </button>
+
+        <div id="results" class="mt-8">
+            <h3 class="text-xl font-semibold text-blue-600 mb-3">统计结果</h3>
+            <p class="text-sm font-bold mb-6">本书中共提及：<span id="totalBooks"></span> 本书</p>
+            <hr class="border-t border-gray-300 my-4">
+            <div id="bookList"></div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.9.359/pdf.min.js"></script>
+    <script>
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.9.359/pdf.worker.min.js';
+
+        async function processPDF() {
+            const fileInput = document.getElementById('pdfFile');
+            const file = fileInput.files[0];
+            if (!file) {
+                alert('请选择一个PDF文件');
+                return;
+            }
+
+            const arrayBuffer = await file.arrayBuffer();
+            const pdf = await pdfjsLib.getDocument(arrayBuffer).promise;
+            const numPages = pdf.numPages;
+
+            const books = {};
+
+            for (let i = 1; i <= numPages; i++) {
+                const page = await pdf.getPage(i);
+                const textContent = await page.getTextContent();
+                const pageText = textContent.items.map(item => item.str).join(' ');
+                
+                const bookRegex = /《([^》]+)》/g;
+                let match;
+                const pageBooks = new Set(); // 用于跟踪当前页面出现的书籍
+
+                while ((match = bookRegex.exec(pageText)) !== null) {
+                    const bookName = match[1];
+                    if (!books[bookName]) {
+                        books[bookName] = { count: 0, pages: [] };
+                    }
+                    if (!pageBooks.has(bookName)) {
+                        books[bookName].count++;
+                        books[bookName].pages.push(i);
+                        pageBooks.add(bookName);
+                    }
+                }
+            }
+
+            displayResults(books, numPages);
+        }
+
+        function displayResults(books, totalPages) {
+            const bookList = document.getElementById('bookList');
+            const totalBooks = Object.keys(books).length;
+            document.getElementById('totalBooks').textContent = totalBooks;
+
+            let bookListHTML = `
+                <h3 class="text-2xl font-bold text-blue-600 mb-4">书籍统计</h3>
+                <div class="overflow-x-auto shadow-md rounded-lg">
+                    <table class="w-full table-auto">
+                        <thead class="bg-gray-200">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">书名</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">出现页数</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">出现页码</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+            `;
+            const sortedBooks = Object.entries(books).sort((a, b) => b[1].count - a[1].count);
+            for (const [book, data] of sortedBooks) {
+                bookListHTML += `
+                    <tr class="border-b border-gray-200 hover:bg-gray-50">
+                        <td class="px-6 py-3 text-sm font-medium text-gray-700">${book}</td>
+                        <td class="px-6 py-3 text-sm text-gray-700">${data.count}</td>
+                        <td class="px-6 py-3 text-sm text-gray-700">${formatPages(data.pages)}</td>
+                    </tr>
+                `;
+            }
+            bookListHTML += '</tbody></table></div>';
+
+            bookList.innerHTML = bookListHTML;
+        }
+
+        function formatPages(pages) {
+            if (pages.length <= 5) {
+                return pages.join(', ');
+            } else {
+                return pages.slice(0, 5).join(', ') + ` ... (共 ${pages.length} 页)`;
+            }
+        }
+
+        function updateFileName() {
+            const fileInput = document.getElementById('pdfFile');
+            const fileNameSpan = document.getElementById('fileName');
+            const fileLabel = document.getElementById('fileLabel');
+            if (fileInput.files.length > 0) {
+                fileNameSpan.textContent = fileInput.files[0].name;
+                fileLabel.textContent = '更改文件';
+            } else {
+                fileNameSpan.textContent = '';
+                fileLabel.textContent = '选择文件';
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,7 @@
+create a application that can be use to count all 《》 books in a pdf file
+
+features:
+- the application name is "📚Book counter"
+- build a web page to upload pdf file and show the result
+- and list books name and appearance times.
+- and list all the books and the number of pages in each book
