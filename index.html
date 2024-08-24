@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>📚Book counter</title>
+    <title>📚Book Counter</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-100 text-gray-800 font-sans">
@@ -34,7 +34,8 @@
             <p id="progressText" class="text-sm text-gray-600 mt-2">正在解析PDF：0%</p>
         </div>
 
-        <div id="results" class="mt-8">
+        <!-- 添加结果区域 -->
+        <div id="results" class="mt-8 hidden">
             <h3 class="text-xl font-semibold text-blue-600 mb-3">统计结果</h3>
             <p class="text-sm mb-2">字数：<span id="wordCount">0</span></p>
             <p class="text-sm mb-2">页数：<span id="pageCount">0</span></p>
@@ -110,6 +111,7 @@
         }
 
         function displayResults(books, totalPages, totalWordCount) {
+            const resultsDiv = document.getElementById('results');
             const bookList = document.getElementById('bookList');
             const totalBooks = Object.keys(books).length;
             
@@ -118,20 +120,23 @@
             document.getElementById('pageCount').textContent = totalPages;
             document.getElementById('totalBooks').textContent = totalBooks;
 
+            // 显示结果区域
+            resultsDiv.classList.remove('hidden');
+
             let bookListHTML = `
-                <h3 class="text-2xl font-bold text-blue-600 mb-4">书籍统计</h3>
+                <h3 class="text-xl font-semibold text-blue-600 mb-3">书籍统计</h3>
                 <div class="overflow-x-auto shadow-md rounded-lg">
                     <table class="w-full table-auto">
                         <thead class="bg-gray-200">
                             <tr>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider whitespace-nowrap">序号</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider" style="max-width: 200px; word-wrap: break-word;">书名</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider whitespace-nowrap">书名</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider whitespace-nowrap">出现次数</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider whitespace-nowrap">出现页码</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider whitespace-nowrap min-w-max">秘塔</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider whitespace-nowrap min-w-max">豆瓣</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider style="max-width: 160px; word-wrap: break-word;">微信</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider style="max-width: 160px; word-wrap: break-word;">抖音</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider whitespace-nowrap">微信</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider whitespace-nowrap">抖音</th>
                             </tr>
                         </thead>
                         <tbody class="bg-white divide-y divide-gray-200">
@@ -145,7 +150,7 @@
                 bookListHTML += `
                     <tr class="border-b border-gray-200 hover:bg-gray-50">
                         <td class="px-6 py-3 text-sm text-gray-700 whitespace-nowrap">${index + 1}</td>
-                        <td class="px-6 py-3 text-sm font-medium text-gray-700" style="max-width: 200px; word-wrap: break-word;">《${book}》</td>
+                        <td class="px-6 py-3 text-sm font-medium text-gray-700 whitespace-nowrap overflow-hidden text-ellipsis" style="max-width: 230px;">《${book}》</td>
                         <td class="px-6 py-3 text-sm text-gray-700 whitespace-nowrap">${data.count}</td>
                         <td class="px-6 py-3 text-sm text-gray-700 whitespace-nowrap">${formatPages(data.pages)}</td>
                         <td class="px-6 py-3 text-sm text-gray-700 whitespace-nowrap">
