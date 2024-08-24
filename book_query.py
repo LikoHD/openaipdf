@@ -7,6 +7,8 @@ def query_and_store_book_records(file_name, file_type, word_count, page_count, b
     key: str = os.environ.get("SUPABASE_KEY")
     supabase: Client = create_client(url, key)
 
+
+
     # 插入查询记录
     query_record = supabase.table("query_records").insert({
         "file_name": file_name,

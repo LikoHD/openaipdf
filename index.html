@@ -259,7 +259,7 @@
 
             bookList.innerHTML = bookListHTML;
 
-            // 添加下载按钮的事件监听器
+            // 添加下载按钮
             document.getElementById('downloadBtn').addEventListener('click', () => downloadResults(books));
         }
 
@@ -308,7 +308,7 @@
             }
         }
 
-        // 添加新函数来发送数据到后端
+        // save data to backend
         async function sendDataToBackend(fileName, fileType, wordCount, pageCount, books) {
             try {
                 const response = await fetch('/api/store-book-records', {
@@ -330,9 +330,9 @@
                 }
 
                 const result = await response.json();
-                console.log('数据成功存储到数据库:', result);
+                console.log('save:', result);
             } catch (error) {
-                console.error('存储数据时出错:', error);
+                console.error('save error:', error);
             }
         }
     </script>
