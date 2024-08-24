@@ -47,11 +47,15 @@
 
         <!-- 添加结果区域 -->
         <div id="results" class="mt-8 hidden">
-            <h3 class="text-xl font-semibold text-blue-600 mb-3">统计结果</h3>
-            <p class="text-sm mb-2">字数：<span id="wordCount">0</span></p>
-            <p class="text-sm mb-2">页数：<span id="pageCount">0</span></p>
-            <p class="text-sm font-bold">本书中共提及：<span id="totalBooks"></span> 本书</p>
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-semibold text-blue-600">统计结果</h3>
+                <p class="text-sm font-bold">本书中共提及：<span id="totalBooks"></span> 本书📖</p>
+                <p class="text-sm">字数：<span id="wordCount">0</span></p>
+                <p class="text-sm">页数：<span id="pageCount">0</span></p>
+                <p id="downloadBtn" class="text-sm font-bold text-green-500 hover:text-green-700 cursor-pointer transition duration-300">下载为表格</p>
+            </div>
             <hr class="border-t border-gray-300 my-4">
+            
             <div id="bookList"></div>
         </div>
     </div>
@@ -138,7 +142,7 @@
                         throw new Error(`EPUB处理错误: ${epubError.message}`);
                     }
                 } else {
-                    throw new Error('不支持的文件格式');
+                    throw new Error('不支持文件格式');
                 }
 
                 displayResults(books, numPages, totalWordCount);
@@ -251,6 +255,9 @@
             bookListHTML += '</tbody></table></div>';
 
             bookList.innerHTML = bookListHTML;
+
+            // 添加下载按钮的事件监听器
+            document.getElementById('downloadBtn').addEventListener('click', () => downloadResults(books));
         }
 
         function formatPages(pages) {
@@ -274,6 +281,27 @@
             } else {
                 fileNameSpan.textContent = '';
                 fileLabel.textContent = '选择文件';
+            }
+        }
+
+        function downloadResults(books) {
+            // 添加 UTF-8 BOM
+            let csvContent = "\uFEFF";
+            csvContent += "序号,书名,出现次数,出现页\n";
+            Object.entries(books).sort((a, b) => b[1].count - a[1].count).forEach(([ book, data ], index) => {
+                csvContent += `${index + 1},"《${book}》",${data.count},"${data.pages.join(', ')}"\n`;
+            });
+
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement("a");
+            if (link.download !== undefined) {
+                const url = URL.createObjectURL(blob);
+                link.setAttribute("href", url);
+                link.setAttribute("download", "书籍统计结果.csv");
+                link.style.visibility = 'hidden';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
             }
         }
     </script>
