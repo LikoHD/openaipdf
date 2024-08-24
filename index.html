@@ -8,21 +8,22 @@
 </head>
 <body class="bg-gray-100 text-gray-800 font-sans">
     <div class="container mx-auto px-4 py-8 max-w-3xl">
-        <h1 class="text-3xl font-bold text-blue-600 mb-6">📚Books counter</h1>
+        <h1 class="text-3xl font-bold text-blue-600 mb-6">📚Books Counter</h1>
         <p class="text-sm text-gray-500 mb-4">上传 pdf 书籍统计其中提到的其他书</p>
         <div class="mb-6">
-            <label for="pdfFile" class="block mb-2 text-sm font-medium text-gray-700">选择PDF文件</label>
+            <label for="pdfFile" class="block mb-2 text-sm font-medium text-gray-400">选择PDF文件</label>
             <div class="flex items-center">
-                <label for="pdfFile" class="cursor-pointer bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-lg transition duration-300">
-                    <span id="fileLabel">选择文件</span>
+                <label for="pdfFile" class="cursor-pointer bg-gradient-to-r from-purple-500 to-orange-500 hover:from-purple-600 hover:to-orange-600 text-white py-2 px-4 rounded-lg transition duration-300 backdrop-filter backdrop-blur-sm bg-opacity-70">
+                    <span id="fileLabel">选择查看的书</span>
                     <input type="file" id="pdfFile" accept=".pdf" class="hidden" onchange="updateFileName()">
                 </label>
                 <span id="fileName" class="ml-3 text-sm text-gray-600"></span>
             </div>
         </div>
 
-        <button onclick="processPDF()" class="w-full bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-lg transition duration-300">
-            查看PDF中提及的书籍
+        <button onclick="processPDF()" class="w-full bg-gradient-to-r from-purple-500 to-orange-500 hover:from-purple-600 hover:to-orange-600 text-white py-2 px-4 rounded-lg transition duration-300 backdrop-filter backdrop-blur-sm bg-opacity-70 relative overflow-hidden">
+            <span class="relative z-10">查看PDF中提及的书籍</span>
+            <div class="absolute top-0 left-0 w-full h-full bg-gradient-to-r from-purple-500 to-orange-500 opacity-50 animate-gradient-x"></div>
         </button>
 
         <!-- 添加进度条 -->
