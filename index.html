@@ -127,7 +127,9 @@
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider whitespace-nowrap">书名</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider whitespace-nowrap">出现次数</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider whitespace-nowrap">出现页码</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider whitespace-nowrap">豆瓣</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider whitespace-nowrap min-w-max">豆瓣</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider whitespace-nowrap min-w-max">微信读书</th>
+
                             </tr>
                         </thead>
                         <tbody class="bg-white divide-y divide-gray-200">
@@ -135,14 +137,18 @@
             const sortedBooks = Object.entries(books).sort((a, b) => b[1].count - a[1].count);
             sortedBooks.forEach(([ book, data ], index) => {
                 const doubanLink = `https://search.douban.com/book/subject_search?search_text=${encodeURIComponent(book)}&cat=1001`;
+                const weixinLink = `https://weread.qq.com/web/search/books?keyword=${encodeURIComponent(book)}`;
                 bookListHTML += `
                     <tr class="border-b border-gray-200 hover:bg-gray-50">
-                        <td class="px-6 py-3 text-sm text-gray-700">${index + 1}</td>
-                        <td class="px-6 py-3 text-sm font-medium text-gray-700">《${book}》</td>
-                        <td class="px-6 py-3 text-sm text-gray-700">${data.count}</td>
-                        <td class="px-6 py-3 text-sm text-gray-700">${formatPages(data.pages)}</td>
-                        <td class="px-6 py-3 text-sm text-gray-700">
-                            <a href="${doubanLink}" target="_blank" rel="noopener noreferrer" class="text-blue-500 hover:text-blue-700">查看</a>
+                        <td class="px-6 py-3 text-sm text-gray-700 whitespace-nowrap">${index + 1}</td>
+                        <td class="px-6 py-3 text-sm font-medium text-gray-700 whitespace-nowrap">《${book}》</td>
+                        <td class="px-6 py-3 text-sm text-gray-700 whitespace-nowrap">${data.count}</td>
+                        <td class="px-6 py-3 text-sm text-gray-700 whitespace-nowrap">${formatPages(data.pages)}</td>
+                        <td class="px-6 py-3 text-sm text-gray-700 whitespace-nowrap">
+                            <a href="${doubanLink}" target="_blank" rel="noopener noreferrer" class="text-blue-400 hover:text-blue-700">查看</a>
+                        </td>
+                        <td class="px-6 py-3 text-sm text-gray-700 whitespace-nowrap">
+                            <a href="${weixinLink}" target="_blank" rel="noopener noreferrer" class="text-blue-400 hover:text-blue-700">查看</a>
                         </td>
                     </tr>
                 `;
