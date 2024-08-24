@@ -3,19 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>📚Book Counter - 统计PDF中提到的书籍</title>
-    <meta name="description" content="上传PDF文件，自动统计其中提到的其他书籍。快速了解一本书中引用的所有书籍。">
+    <title>📚Books Counter - 统计书中提到的书籍</title>
+    <meta name="description" content="上传文件，自动统计其中提到的其他书籍。快速了解一本书中引用的所有书籍。书中引用的书。书中关联的书">
     <meta name="keywords" content="PDF统计,书籍引用,文献分析,阅读工具">
     <meta name="author" content="BookInBook">
     <link rel="canonical" href="https://www.bookinbook.top/">
-    <meta property="og:title" content="Book Counter - 统计PDF中提到的书籍">
-    <meta property="og:description" content="上传PDF文件，自动统计其中提到的其他书籍。快速了解一本书中引用的所有书籍。">
+    <meta property="og:title" content="Books Counter - 统计书中提到的书籍">
+    <meta property="og:description" content="上传文件，自动统计其中提到的其他书籍。快速了解一本书中引用的所有书籍。">
     <meta property="og:url" content="https://www.bookinbook.top/">
     <meta property="og:type" content="website">
     <meta property="og:image" content="https://www.bookinbook.top/path-to-your-image.jpg">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.5/jszip.min.js"></script>
-    <script src="https://unpkg.com/epubjs/dist/epub.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/epubjs/dist/epub.min.js"></script>
 </head>
 <body class="bg-gray-100 text-gray-800 font-sans">
     <div class="container mx-auto px-4 py-8 max-w-3xl">
@@ -203,11 +203,12 @@
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider whitespace-nowrap">序号</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider whitespace-nowrap">书名</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider whitespace-nowrap">出现次数</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider whitespace-nowrap">出现页</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider whitespace-nowrap min-w-max">秘塔</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider whitespace-nowrap">Zlib</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider whitespace-nowrap min-w-max">豆瓣</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider whitespace-nowrap">微信</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider whitespace-nowrap">抖音</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider whitespace-nowrap">出现页</th>
                             </tr>
                         </thead>
                         <tbody class="bg-white divide-y divide-gray-200">
@@ -218,14 +219,17 @@
                 const doubanLink = `https://search.douban.com/book/subject_search?search_text=${encodeURIComponent(`《${book}》`)}&cat=1001`;
                 const weixinLink = `https://weread.qq.com/web/search/books?keyword=${encodeURIComponent(`《${book}》`)}`;
                 const douyinLink = `https://www.douyin.com/root/search/${encodeURIComponent(`《${book}》`)}`;
+                const zlibLink = `https://singlelogin.re/s/${encodeURIComponent(`《${book}》`)}`;
                 bookListHTML += `
                     <tr class="border-b border-gray-200 hover:bg-gray-50">
                         <td class="px-6 py-3 text-sm text-gray-700 whitespace-nowrap">${index + 1}</td>
                         <td class="px-6 py-3 text-sm font-medium text-gray-700 whitespace-nowrap overflow-hidden text-ellipsis" style="max-width: 230px;">《${book}》</td>
                         <td class="px-6 py-3 text-sm text-gray-700 whitespace-nowrap">${data.count}</td>
-                        <td class="px-6 py-3 text-sm text-gray-700 whitespace-nowrap">${formatPages(data.pages)}</td>
                         <td class="px-6 py-3 text-sm text-gray-700 whitespace-nowrap">
                             <a href="${metasoLink}" target="_blank" rel="noopener noreferrer" class="text-blue-400 hover:text-blue-700">查看</a>
+                        </td>
+                        <td class="px-6 py-3 text-sm text-gray-700 whitespace-nowrap">
+                            <a href="${zlibLink}" target="_blank" rel="noopener noreferrer" class="text-blue-400 hover:text-blue-700">Zlib</a>
                         </td>
                         <td class="px-6 py-3 text-sm text-gray-700 whitespace-nowrap">
                             <a href="${doubanLink}" target="_blank" rel="noopener noreferrer" class="text-blue-400 hover:text-blue-700">查看</a>
@@ -235,6 +239,10 @@
                         </td>
                         <td class="px-6 py-3 text-sm text-gray-700 whitespace-nowrap">
                             <a href="${douyinLink}" target="_blank" rel="noopener noreferrer" class="text-blue-400 hover:text-blue-700">查看</a>
+                        </td>
+                        
+                        <td class="px-6 py-3 text-sm text-gray-700 whitespace-nowrap">
+                            ${formatPages(data.pages)}
                         </td>
                     </tr>
                 `;
