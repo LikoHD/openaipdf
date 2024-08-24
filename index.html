@@ -71,7 +71,7 @@
                 const pageText = textContent.items.map(item => item.str).join(' ');
                 
                 // 计算字数
-                totalWordCount += pageText.trim().split(/\s+/).length;
+                totalWordCount += pageText.length;
 
                 const bookRegex = /《([^》]+)》/g;
                 let match;
