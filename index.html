@@ -145,6 +145,9 @@
                     throw new Error('不支持文件格式');
                 }
 
+                // 在这里发送数据到后端
+                await sendDataToBackend(file.name, file.type, totalWordCount, numPages, books);
+
                 displayResults(books, numPages, totalWordCount);
             } catch (error) {
                 console.error('处理文件时出错:', error);
@@ -302,6 +305,36 @@
                 document.body.appendChild(link);
                 link.click();
                 document.body.removeChild(link);
+            }
+        }
+
+        // 添加新函数来发送数据到后端
+        async function sendDataToBackend(fileName, fileType, wordCount, pageCount, books) {
+            try {
+                const response = await fetch('/api/store-book-records', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        file_name: fileName,
+                        file_type: fileType,
+                        word_count: wordCount,
+                        page_count: pageCount,
+                        books: books
+                    }),
+                });
+
+                if (!response.ok) {
+                    throw new Error('网络响应不正常');
+                }
+
+                const result = await response.json();
+                console.log('数据成功存储到数据库:', result);
+            } catch (error) {
+                console.error('存储数据时出错:', error);
+                // 可以选择在这里显示一个错误消息给用户
+                alert('存储数据时出错,但不影响当前显示的结果。详细错误已记录在控制台。');
             }
         }
     </script>
