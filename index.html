@@ -49,7 +49,7 @@
         <div id="results" class="mt-8 ">
             <div class="flex justify-between items-center mb-4">
                 <h3 class="text-xl font-semibold text-blue-600">统计结果</h3>
-                <p class="text-sm font-bold">本书中共提及：<span id="totalBooks"></span> 本书📖</p>
+                <p class="text-sm font-bold">本书中共提及：<span id="totalBooks">0 </span>本书</p>
                 <p class="text-sm">字数：<span id="wordCount">0</span></p>
                 <p class="text-sm">页数：<span id="pageCount">0</span></p>
                 <p id="downloadBtn" class="text-sm font-bold text-green-500 hover:text-green-700 cursor-pointer transition duration-300">下载为表格</p>
@@ -199,7 +199,7 @@
             resultsDiv.classList.remove('hidden');
 
             let bookListHTML = `
-                <h3 class="text-xl font-semibold text-blue-600 mb-3">📚书籍统计</h3>
+                <h3 class="text-xl font-semibold text-blue-600 mb-3">书籍统计📚</h3>
                 <div class="overflow-x-auto shadow-md rounded-lg">
                     <table class="w-full table-auto">
                         <thead class="bg-gray-200">
