@@ -3,7 +3,9 @@
 
 Book Counter 是一个简单的网页应用，用于统计 PDF 文件中提到的其他书籍。
 体验地址：www.bookinbook.top/
-![image](https://github.com/user-attachments/assets/b247a77b-2e21-4459-9a3d-60842078041d)
+![WechatIMG166](https://github.com/user-attachments/assets/65e70e22-f182-40cd-94e3-8fe592cc3315)
+![screenshot-20240824-180032](https://github.com/user-attachments/assets/0e631e1e-3f1d-44a8-9d8e-b406fc8377fa)
+
 
 
 ## 功能特点
