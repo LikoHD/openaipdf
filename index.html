@@ -8,8 +8,8 @@
 </head>
 <body class="bg-gray-100 text-gray-800 font-sans">
     <div class="container mx-auto px-4 py-8 max-w-3xl">
-        <h1 class="text-3xl font-bold text-blue-600 mb-6">📚Book counter</h1>
-    
+        <h1 class="text-3xl font-bold text-blue-600 mb-6">📚Books counter</h1>
+        <p class="text-sm text-gray-500 mb-4">上传 pdf 书籍统计其中提到的其他书</p>
         <div class="mb-6">
             <label for="pdfFile" class="block mb-2 text-sm font-medium text-gray-700">选择PDF文件</label>
             <div class="flex items-center">
@@ -21,13 +21,23 @@
             </div>
         </div>
 
-        <button onclick="processPDF()" class="w-full bg-blue-500 hover:bg-blue-600 text-white  py-2 px-4 rounded-lg transition duration-300">
-            上传并查看PDF中提及的书籍
+        <button onclick="processPDF()" class="w-full bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-lg transition duration-300">
+            查看PDF中提及的书籍
         </button>
+
+        <!-- 添加进度条 -->
+        <div id="progressContainer" class="mt-4 hidden">
+            <div class="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
+                <div id="progressBar" class="bg-blue-600 h-2.5 rounded-full" style="width: 0%"></div>
+            </div>
+            <p id="progressText" class="text-sm text-gray-600 mt-2">正在解析PDF：0%</p>
+        </div>
 
         <div id="results" class="mt-8">
             <h3 class="text-xl font-semibold text-blue-600 mb-3">统计结果</h3>
-            <p class="text-sm font-bold mb-6">本书中共提及：<span id="totalBooks"></span> 本书</p>
+            <p class="text-sm mb-2">字数：<span id="wordCount">0</span></p>
+            <p class="text-sm mb-2">页数：<span id="pageCount">0</span></p>
+            <p class="text-sm font-bold">本书中共提及：<span id="totalBooks"></span> 本书</p>
             <hr class="border-t border-gray-300 my-4">
             <div id="bookList"></div>
         </div>
@@ -45,23 +55,30 @@
                 return;
             }
 
+            // 显示进度条
+            document.getElementById('progressContainer').classList.remove('hidden');
+
             const arrayBuffer = await file.arrayBuffer();
             const pdf = await pdfjsLib.getDocument(arrayBuffer).promise;
             const numPages = pdf.numPages;
 
             const books = {};
+            let totalWordCount = 0;
 
             for (let i = 1; i <= numPages; i++) {
                 const page = await pdf.getPage(i);
                 const textContent = await page.getTextContent();
                 const pageText = textContent.items.map(item => item.str).join(' ');
                 
+                // 计算字数
+                totalWordCount += pageText.trim().split(/\s+/).length;
+
                 const bookRegex = /《([^》]+)》/g;
                 let match;
-                const pageBooks = new Set(); // 用于跟踪当前页面出现的书籍
+                const pageBooks = new Set(); // 用于跟踪当前页面出现的籍
 
                 while ((match = bookRegex.exec(pageText)) !== null) {
-                    const bookName = match[1];
+                    const bookName = match[1].replace(/\s+/g, ''); // 去除书名中的空格
                     if (!books[bookName]) {
                         books[bookName] = { count: 0, pages: [] };
                     }
@@ -71,14 +88,33 @@
                         pageBooks.add(bookName);
                     }
                 }
+
+                // 更新进度
+                updateProgress(i, numPages);
             }
 
-            displayResults(books, numPages);
+            displayResults(books, numPages, totalWordCount);
+            
+            // 隐藏进度条
+            document.getElementById('progressContainer').classList.add('hidden');
         }
 
-        function displayResults(books, totalPages) {
+        function updateProgress(currentPage, totalPages) {
+            const progress = (currentPage / totalPages) * 100;
+            const progressBar = document.getElementById('progressBar');
+            const progressText = document.getElementById('progressText');
+            
+            progressBar.style.width = `${progress}%`;
+            progressText.textContent = `正在解析PDF：${Math.round(progress)}%`;
+        }
+
+        function displayResults(books, totalPages, totalWordCount) {
             const bookList = document.getElementById('bookList');
             const totalBooks = Object.keys(books).length;
+            
+            // 更新统计结果
+            document.getElementById('wordCount').textContent = totalWordCount;
+            document.getElementById('pageCount').textContent = totalPages;
             document.getElementById('totalBooks').textContent = totalBooks;
 
             let bookListHTML = `
@@ -87,23 +123,25 @@
                     <table class="w-full table-auto">
                         <thead class="bg-gray-200">
                             <tr>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">书名</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">出现页数</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">出现页码</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider whitespace-nowrap">序号</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider whitespace-nowrap">书名</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider whitespace-nowrap">出现次数</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider whitespace-nowrap">出现页码</th>
                             </tr>
                         </thead>
                         <tbody class="bg-white divide-y divide-gray-200">
             `;
             const sortedBooks = Object.entries(books).sort((a, b) => b[1].count - a[1].count);
-            for (const [book, data] of sortedBooks) {
+            sortedBooks.forEach(([ book, data ], index) => {
                 bookListHTML += `
                     <tr class="border-b border-gray-200 hover:bg-gray-50">
-                        <td class="px-6 py-3 text-sm font-medium text-gray-700">${book}</td>
+                        <td class="px-6 py-3 text-sm text-gray-700">${index + 1}</td>
+                        <td class="px-6 py-3 text-sm font-medium text-gray-700">《${book}》</td>
                         <td class="px-6 py-3 text-sm text-gray-700">${data.count}</td>
                         <td class="px-6 py-3 text-sm text-gray-700">${formatPages(data.pages)}</td>
                     </tr>
                 `;
-            }
+            });
             bookListHTML += '</tbody></table></div>';
 
             bookList.innerHTML = bookListHTML;
@@ -130,5 +168,9 @@
             }
         }
     </script>
+    <script>
+      window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
+    </script>
+    <script defer src="/_vercel/insights/script.js"></script>
 </body>
 </html>
