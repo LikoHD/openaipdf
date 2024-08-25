@@ -18,7 +18,7 @@
     <script src="https://cdn.jsdelivr.net/npm/epubjs/dist/epub.min.js"></script>
 </head>
 <body class="bg-gray-100 text-gray-800 font-sans">
-    <div class="container mx-auto px-4 py-8 max-w-3xl">
+    <div class="container mx-auto px-4 py-8 max-w-3xl" id="dropZone">
         <h1 class="text-3xl font-bold text-blue-600 mb-6">🤓📚Books Counter </h1>
         <p class="text-sm text-gray-500 mb-4">上传书籍统计其中提到的其他书，支持下载为表格</p>
         <div class="mb-6">
@@ -49,10 +49,10 @@
         <div id="results" class="mt-8 ">
             <div class="flex justify-between items-center mb-4">
                 <h3 class="text-xl font-semibold text-blue-600">统计结果</h3>
-                <p class="text-sm font-bold">本书中共提及：<span id="totalBooks">0 </span>本书</p>
+                <p class="text-sm font-bold">本书共提及：<span id="totalBooks">0 </span>本书</p>
                 <p class="text-sm">字数：<span id="wordCount">0</span></p>
                 <p class="text-sm">页数：<span id="pageCount">0</span></p>
-                <p id="downloadBtn" class="text-sm font-bold text-green-500 hover:text-green-700 cursor-pointer transition duration-300">下载为表格</p>
+                <p id="downloadBtn" class="text-sm font-bold text-green-500 hover:text-green-700 cursor-pointer transition duration-300">📥 下载</p>
             </div>
             <hr class="border-t border-gray-300 my-4">
             
@@ -335,6 +335,35 @@
                 console.error('save error:', error);
             }
         }
+
+        // 添加拖放事件监听器
+        const dropZone = document.getElementById('dropZone');
+
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            dropZone.classList.add('bg-blue-100');
+        });
+
+        dropZone.addEventListener('dragleave', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            dropZone.classList.remove('bg-blue-100');
+        });
+
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            dropZone.classList.remove('bg-blue-100');
+
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                const fileInput = document.getElementById('bookFile');
+                fileInput.files = files;
+                updateFileName();
+                processBook();
+            }
+        });
     </script>
     <script>
       window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
