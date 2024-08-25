@@ -281,6 +281,9 @@
                 const encodedFileName = encodeURIComponent(fileNameWithBrackets);
                 fileNameSpan.innerHTML = `${fileName} <a href="https://metaso.cn/?q=${encodedFileName}" target="_blank" rel="noopener noreferrer" class="text-blue-500 hover:text-blue-700 ml-2">秘塔🔍</a>`;
                 fileLabel.textContent = '更改文件';
+                
+                // 立即开始处理文件
+                processBook();
             } else {
                 fileNameSpan.textContent = '';
                 fileLabel.textContent = '选择文件';
