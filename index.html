@@ -32,10 +32,17 @@
             </div>
         </div>
 
-        <button onclick="processBook()" class="w-full bg-gradient-to-r from-purple-500 to-orange-500 hover:from-purple-600 hover:to-orange-600 text-white py-2 px-4 rounded-lg transition duration-300 backdrop-filter backdrop-blur-sm bg-opacity-70 relative overflow-hidden">
-            <span class="relative z-10">查看书中提及的书籍</span>
-            <div class="absolute top-0 left-0 w-full h-full bg-gradient-to-r from-purple-500 to-orange-500 opacity-50 animate-gradient-x"></div>
-        </button>
+        <div class="flex space-x-2">
+            <button onclick="processBook()" class="w-4/5 bg-gradient-to-r from-purple-500 to-orange-500 hover:from-purple-600 hover:to-orange-600 text-white py-2 px-4 rounded-lg transition duration-300 backdrop-filter backdrop-blur-sm bg-opacity-70 relative overflow-hidden">
+                <span class="relative z-10">查看书中提及的书籍</span>
+                <div class="absolute top-0 left-0 w-full h-full bg-gradient-to-r from-purple-500 to-orange-500 opacity-50 animate-gradient-x"></div>
+            </button>
+            <!-- 添加一个分享按钮 -->
+            <button onclick="shareResults()" class="w-1/5 bg-gradient-to-r from-purple-500 to-orange-500 hover:from-purple-600 hover:to-orange-600 text-white py-2 px-4 rounded-lg transition duration-300 backdrop-filter backdrop-blur-sm bg-opacity-70 relative overflow-hidden">
+                <span class="relative z-10">📤分享</span>
+                <div class="absolute top-0 left-0 w-full h-full bg-gradient-to-r from-purple-500 to-orange-500 opacity-50 animate-gradient-x"></div>
+            </button>
+        </div>
 
         <!-- 添加进度条 -->
         <div id="progressContainer" class="mt-4 hidden">
@@ -48,15 +55,16 @@
         <!-- 添加结果区域 -->
         <div id="results" class="mt-8 ">
             <div class="flex justify-between items-center mb-4">
-                <h3 class="text-xl font-semibold text-blue-600">统计结果</h3>
-                <p class="text-sm font-bold">本书共提及：<span id="totalBooks">0 </span>本书</p>
-                <p class="text-sm">字数：<span id="wordCount">0</span></p>
-                <p class="text-sm">页数：<span id="pageCount">0</span></p>
+                <p class="text-sm font-bold">本书共提及:<span id="totalBooks">0 </span>本书</p>
+                <p class="text-sm">字数:<span id="wordCount">0</span></p>
+                <p class="text-sm">页数:<span id="pageCount">0</span></p>
                 <p id="downloadBtn" class="text-sm font-bold text-green-500 hover:text-green-700 cursor-pointer transition duration-300">📥 下载</p>
             </div>
             <hr class="border-t border-gray-300 my-4">
             
             <div id="bookList"></div>
+        </div>
+
         </div>
     </div>
 
@@ -202,7 +210,7 @@
             resultsDiv.classList.remove('hidden');
 
             let bookListHTML = `
-                <h3 class="text-xl font-semibold text-blue-600 mb-3">书籍统计📚</h3>
+                
                 <div class="overflow-x-auto shadow-md rounded-lg">
                     <table class="w-full table-auto">
                         <thead class="bg-gray-200">
@@ -259,7 +267,7 @@
 
             bookList.innerHTML = bookListHTML;
 
-            // 添加下载按钮
+            // 添加下按钮
             document.getElementById('downloadBtn').addEventListener('click', () => downloadResults(books));
         }
 
@@ -372,5 +380,133 @@
       window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
     </script>
     <script defer src="/_vercel/insights/script.js"></script>
+
+    <!-- 在 body 标签内，结果区域之后添加以下代码 -->
+    <div id="shareCard" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50 mt-8">
+        <div class="bg-white rounded-lg p-8 max-w-3xl w-full mx-4">
+            <div id="shareContent" class="mb-6 overflow-auto max-h-[65vh]">  </div>
+            <div class="flex justify-end space-x-4">
+                <button id="closeShareCard" class="bg-gray-300 hover:bg-gray-400 text-black text-sm py-2 px-4 rounded-full">关闭</button>
+                <button id="downloadImage" class="bg-blue-500 hover:bg-blue-700 text-white text-sm py-2 px-4 rounded-full">下载分享图片</button>
+            </div>
+        </div>
+    </div>
+
+
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+    <script>
+        function shareResults() {
+            const shareCard = document.getElementById('shareCard');
+            const shareContent = document.getElementById('shareContent');
+            
+            // 获取文件名（书名）并移除文件后缀
+            const fileInput = document.getElementById('bookFile');
+            let fileName = fileInput.files.length > 0 ? fileInput.files[0].name : '未选择文件';
+            fileName = fileName.replace(/\.[^/.]+$/, ""); // 移除文件后缀
+            
+            // 获取完整的书名列表
+            const bookListTable = document.getElementById('bookList').querySelector('table');
+            const bookRows = bookListTable.querySelectorAll('tbody tr');
+            let bookListHTML = '';
+            bookRows.forEach((row, index) => {
+                const columns = row.querySelectorAll('td');
+                if (columns.length >= 3) {
+                    bookListHTML += `
+                        <tr class="border-b border-gray-200">
+                            <td class="px-2 py-1">${columns[1].textContent}</td>
+                            <td class="px-2 py-1">${columns[2].textContent}</td>
+                        </tr>
+                    `;
+                }
+            });
+            
+            // 预加载二维码图片
+            const qrCodeUrl = "https://api.qrserver.com/v1/create-qr-code/?size=80x80&data=https://www.bookinbook.top";
+            const qrCodeImg = new Image();
+            qrCodeImg.crossOrigin = "Anonymous";  // 允许跨域加载图片
+            qrCodeImg.onload = function() {
+                // 图片加载完成后生成内容
+                const content = `
+                    <div class="container bg-white rounded-lg shadow-md overflow-hidden" style="width: 600px;">
+                        <div class="product p-6">
+                            <div class="flex flex-col items-start mb-4">
+                                <h2 class="text-xl font-bold mb-2">${fileName}</h2>
+                                <p class="text-sm text-gray-600"> 这本书里面包含这些书籍 👋  </p>
+                            </div>
+                            
+                            <div class="desc text-sm text-gray-600 mb-4" style="display: flex; justify-content: space-between;">
+                                <p>本书共提及：${document.getElementById('totalBooks').textContent}本书</p>
+                                <p>字数：${document.getElementById('wordCount').textContent}</p>
+                                <p>页数：${document.getElementById('pageCount').textContent}</p>
+                            </div>
+                            <div class="overflow-visible" style="max-height: none;">
+                                <table class="w-full text-left text-sm">
+                                    <thead>
+                                        <tr class="bg-gray-100">
+                                            <th class="px-2 py-1">书名</th>
+                                            <th class="px-2 py-1">出现次数</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        ${bookListHTML}
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="flex items-center justify-between mt-4">
+                                <p class="text-sm text-gray-600">
+                                    www.bookinbook.top<br>
+                                    🔍 查看书中提到了哪些书
+                                </p>
+                                <img src="${qrCodeUrl}" alt="BookInBook二维码" class="w-20 h-20 rounded-lg bg-gray-100">
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                shareContent.innerHTML = content;
+                shareCard.classList.remove('hidden');
+            };
+            qrCodeImg.src = qrCodeUrl;
+        }
+
+        document.getElementById('closeShareCard').addEventListener('click', () => {
+            document.getElementById('shareCard').classList.add('hidden');
+        });
+
+        document.getElementById('downloadImage').addEventListener('click', downloadShareCardAsImage);
+
+        function downloadShareCardAsImage() {
+            const shareContent = document.getElementById('shareContent');
+            const originalStyle = shareContent.style.cssText;
+            
+            // 临时移除滚动和高度限制
+            shareContent.style.overflow = 'visible';
+            shareContent.style.maxHeight = 'none';
+
+            html2canvas(shareContent, {
+                scale: 2,
+                backgroundColor: '#ffffff',
+                logging: false,
+                width: 600,
+                height: shareContent.scrollHeight,
+                windowWidth: 600,
+                windowHeight: shareContent.scrollHeight,
+                useCORS: true  // 允许加载跨域图片
+            }).then(canvas => {
+                // 恢复原始样式
+                shareContent.style.cssText = originalStyle;
+
+                const link = document.createElement('a');
+                link.download = '书籍统计详情.png';
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+            }).catch(error => {
+                console.error('生成图片时出错:', error);
+                alert('生成图片时出错，请稍后重试');
+                // 确保在出错时也恢复原始样式
+                shareContent.style.cssText = originalStyle;
+            });
+        }
+    </script>
 </body>
 </html>
