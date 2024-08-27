@@ -39,7 +39,7 @@
             </button>
             <!-- 添加一个分享按钮 -->
             <button onclick="shareResults()" class="w-1/5 bg-gradient-to-r from-purple-500 to-orange-500 hover:from-purple-600 hover:to-orange-600 text-white py-2 px-4 rounded-lg transition duration-300 backdrop-filter backdrop-blur-sm bg-opacity-70 relative overflow-hidden">
-                <span class="relative z-10">📤分享</span>
+                <span class="relative z-10">分享</span>
                 <div class="absolute top-0 left-0 w-full h-full bg-gradient-to-r from-purple-500 to-orange-500 opacity-50 animate-gradient-x"></div>
             </button>
         </div>
@@ -476,37 +476,45 @@
         document.getElementById('downloadImage').addEventListener('click', downloadShareCardAsImage);
 
         function downloadShareCardAsImage() {
-            const shareContent = document.getElementById('shareContent');
-            const originalStyle = shareContent.style.cssText;
-            
-            // 临时移除滚动和高度限制
-            shareContent.style.overflow = 'visible';
-            shareContent.style.maxHeight = 'none';
+    const shareContent = document.getElementById('shareContent');
+    const originalStyle = shareContent.style.cssText;
+    
+    shareContent.style.overflow = 'visible';
+    shareContent.style.maxHeight = 'none';
 
-            html2canvas(shareContent, {
-                scale: 2,
-                backgroundColor: '#ffffff',
-                logging: false,
-                width: 600,
-                height: shareContent.scrollHeight,
-                windowWidth: 600,
-                windowHeight: shareContent.scrollHeight,
-                useCORS: true  // 允许加载跨域图片
-            }).then(canvas => {
-                // 恢复原始样式
-                shareContent.style.cssText = originalStyle;
+    html2canvas(shareContent, {
+        scale: 2,
+        backgroundColor: '#ffffff',
+        logging: false,
+        width: 600,
+        height: shareContent.scrollHeight,
+        windowWidth: 600,
+        windowHeight: shareContent.scrollHeight,
+        useCORS: true
+    }).then(canvas => {
+        shareContent.style.cssText = originalStyle;
 
+        // 将canvas转换为Blob
+        canvas.toBlob(function(blob) {
+            if (navigator.msSaveBlob) {
+                // 对于IE和Edge
+                navigator.msSaveBlob(blob, '书中提及哪些书.png');
+            } else {
+                // 对于其他浏览器
+                const url = URL.createObjectURL(blob);
                 const link = document.createElement('a');
-                link.download = '书籍统计详情.png';
-                link.href = canvas.toDataURL('image/png');
+                link.download = '书中提及哪些书.png';
+                link.href = url;
                 link.click();
-            }).catch(error => {
-                console.error('生成图片时出错:', error);
-                alert('生成图片时出错，请稍后重试');
-                // 确保在出错时也恢复原始样式
-                shareContent.style.cssText = originalStyle;
-            });
-        }
+                URL.revokeObjectURL(url);
+            }
+        }, 'image/png');
+    }).catch(error => {
+        console.error('生成图片时出错了🐦 ', error);
+        alert('生成图片时出错🐦');
+        shareContent.style.cssText = originalStyle;
+    });
+}
     </script>
 </body>
 </html>
